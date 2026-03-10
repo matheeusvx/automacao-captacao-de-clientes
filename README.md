@@ -69,6 +69,7 @@ Antes de importar este workflow em outro ambiente, revise o arquivo `docs/PLACEH
 - n8n
 - JavaScript
 - JSON
+- Python
 - Google Sheets
 - Gmail
 - CRM
