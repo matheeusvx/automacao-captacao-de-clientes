@@ -65,6 +65,15 @@ Antes de importar este workflow em outro ambiente, revise o arquivo `docs/PLACEH
 4. Selecione `workflows/captacao_clientes.json`.
 5. Reconfigure as credenciais, IDs e integrações necessárias.
 
+## Tecnologias utilizadas
+- n8n
+- JavaScript
+- JSON
+- Google Sheets
+- Gmail
+- CRM
+- WhatsApp
+
 ## Observação
 
 Este projeto representa uma automação prática voltada para operações comerciais e pré-atendimento no segmento de **crédito imobiliário**, com foco em agilidade, rastreabilidade e continuidade do atendimento.
