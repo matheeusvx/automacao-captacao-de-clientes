@@ -37,11 +37,16 @@ Centralizar a entrada dos leads, padronizar o pré-atendimento e acelerar o prim
 ## Estrutura do repositório
 
 ```text
-.
+automacao-captacao-credito-imobiliario/
 ├── README.md
-├── docs
+├── .gitignore
+├── docs/
 │   └── PLACEHOLDERS.md
-└── workflows
+├── scripts/
+│   ├── motor_de_taxas.js
+│   ├── validacao.js
+│   └── simulacao.py
+└── workflows/
     └── captacao_clientes.json
 ```
 
