@@ -24,7 +24,7 @@ A automação:
 
 - **n8n**
 - **JavaScript** para tratamento e padronização de dados
-- **TryaCRM**
+- **TynaCRM**
 - Node da comunidade **wts-chat**
 - **Google Sheets**
 - **Gmail**
