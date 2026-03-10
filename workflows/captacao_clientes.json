@@ -1,0 +1,1569 @@
+{
+  "name": "captacao_clientes",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9af54e83-d29b-4f9a-afb4-fd572245030b",
+              "name": "Digite seu nome completo",
+              "value": "={{ $json[\"Digite seu nome completo\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "af0aa61b-80e6-4160-9094-569fa0edd803",
+              "name": "Digite seu CPF",
+              "value": "={{ $json[\"Digite seu CPF\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "7d49cf55-e7fc-44be-9811-4696b9f0ac0e",
+              "name": "Digite seu número de celular",
+              "value": "={{ $('Formulário').item.json[\"Digite seu número de celular, DDD + Número. Ex: 11 9...\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "09860312-97f2-4a97-9a75-47a5def41674",
+              "name": "Digite seu e-mail",
+              "value": "={{ $json['Digite seu e-mail (em caso de falhas, um e-mail será enviado solicitando o preenchimento do formulário com os dados corretos).'] }}",
+              "type": "string"
+            },
+            {
+              "id": "4e6fda51-ffdd-47af-a552-6a9602d0798c",
+              "name": "Digite o valor do imóvel",
+              "value": "={{ $json[\"Digite o valor do imóvel\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "349fc49f-89bf-462f-92b5-fc62351d16da",
+              "name": "Digite o valor do financiamento",
+              "value": "={{ $json[\"Digite o valor do financiamento\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "afa513ec-653f-4314-ae86-61626036a550",
+              "name": "Possui FGTS?",
+              "value": "={{ $json[\"Possui FGTS?\"] }}",
+              "type": "array"
+            },
+            {
+              "id": "54061a99-82b0-434e-a511-fe1da6ca6a61",
+              "name": "Digite seu estado",
+              "value": "={{ $json[\"Digite seu estado\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "1e983dac-b4ca-44a8-b78a-3088ddc7647b",
+              "name": "valorFinanciado",
+              "value": "={{ $json.valorFinanciado }}",
+              "type": "number"
+            },
+            {
+              "id": "359fdfd6-a3a2-45ba-b23c-2cf3faa3fc72",
+              "name": "parcelaAproximada",
+              "value": "={{ $json.parcelaAproximada }}",
+              "type": "number"
+            },
+            {
+              "id": "b90e8470-e16b-47f6-af2e-b0d115a87271",
+              "name": "textoSimulacao",
+              "value": "={{ $json.textoSimulacao }}",
+              "type": "string"
+            },
+            {
+              "id": "48cec912-524b-4ef8-a5d3-93c7701a7a43",
+              "name": "renda_bruta",
+              "value": "={{ $json[\"Qual a renda bruta familiar de todos os participantes?\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "6390c1b1-180f-43bd-ae52-45fffb5ac90d",
+              "name": "banco_pretendido",
+              "value": "={{ Array.isArray($json[\"Qual banco você pretende realizar seu financiamento?\"]) ? $json[\"Qual banco você pretende realizar seu financiamento?\"][0] : $json[\"Qual banco você pretende realizar seu financiamento?\"] }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        32,
+        160
+      ],
+      "id": "470e6477-ad4c-4b2a-87c8-8be1909a7301",
+      "name": "Separação de dados1",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "getContactByPhone",
+        "phonenumber": "={{ $json[\"Digite seu número de celular\"] }}"
+      },
+      "type": "n8n-nodes-wts.wtsChat",
+      "typeVersion": 1,
+      "position": [
+        256,
+        160
+      ],
+      "id": "d852c4c8-a7e1-43d6-9735-c4d14afde67c",
+      "name": "Buscar contato (existencia)",
+      "retryOnFail": true,
+      "executeOnce": false,
+      "credentials": {
+        "wtsApi": {
+          "id": "REPLACE_WITH_WTS_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_WTS_CREDENTIAL_NAME"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c07e6d39-4c83-44ad-a0d4-08436dbb2547",
+              "leftValue": "={{ $json.phoneNumber }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        160
+      ],
+      "id": "8a972c8c-9cdd-4b5b-be23-55e4085508b9",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "updateContact",
+        "contactId": "={{$node[\"Buscar contato (existencia)\"].json[\"id\"]}}",
+        "fieldsUpdateContact": [
+          "Name",
+          "PhoneNumber",
+          "Email",
+          "Tags"
+        ],
+        "nameUpdateContact": "={{$node[\"Separação de dados1\"].json[\"Digite seu nome completo\"]}}",
+        "phonenumberUpdateContact": "={{$node[\"Separação de dados1\"].json[\"Digite seu número de celular\"]}}",
+        "emailUpdateContact": "={{$node[\"Separação de dados1\"].json[\"Digite seu e-mail\"]}}",
+        "tagsUpdateContact": [
+          "REPLACE_WITH_WTS_CONTACT_TAG_ID"
+        ]
+      },
+      "type": "n8n-nodes-wts.wtsChat",
+      "typeVersion": 1,
+      "position": [
+        688,
+        80
+      ],
+      "id": "684c5b70-b725-4b97-b6df-56a620763ec5",
+      "name": "Atualizar contato",
+      "credentials": {
+        "wtsApi": {
+          "id": "REPLACE_WITH_WTS_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_WTS_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        912,
+        160
+      ],
+      "id": "6aba13d2-a3af-4fb2-8b0f-aea44328d605",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "createContact",
+        "name": "={{$node[\"Separação de dados1\"].json[\"Digite seu nome completo\"]}}",
+        "tagIds": [
+          "REPLACE_WITH_WTS_CONTACT_TAG_ID"
+        ],
+        "phonenumber": "={{$node[\"Separação de dados1\"].json[\"Digite seu número de celular\"]}}",
+        "email": "={{$node[\"Separação de dados1\"].json[\"Digite seu e-mail\"]}}"
+      },
+      "type": "n8n-nodes-wts.wtsChat",
+      "typeVersion": 1,
+      "position": [
+        688,
+        304
+      ],
+      "id": "150e5505-7a94-4178-8315-3aa81c99ac2f",
+      "name": "Criar contato",
+      "credentials": {
+        "wtsApi": {
+          "id": "REPLACE_WITH_WTS_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_WTS_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Formulário e validação de dados informados\n\n\n",
+        "height": 336,
+        "width": 384,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1040,
+        48
+      ],
+      "typeVersion": 1,
+      "id": "2e09af9f-72ab-4808-9aab-e72c0abbf384",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n - Code node (JavaScript) - Mode: Run Once for All Items\n\nfunction onlyDigits(v) {\n  return String(v ?? \"\").replace(/\\D/g, \"\");\n}\n\nfunction toNumber(v) {\n  if (v === null || v === undefined) return NaN;\n  const s = String(v).trim();\n  if (!s) return NaN;\n  const n = parseFloat(s.replace(/\\./g, \"\").replace(\",\", \".\"));\n  return Number.isFinite(n) ? n : NaN;\n}\n\nfunction normStr(v) {\n  return String(v ?? \"\").trim();\n}\n\nfunction getFirstValue(raw) {\n  if (Array.isArray(raw)) return raw[0];\n  return raw;\n}\n\nfunction normalizeChoice(v) {\n  if (v && typeof v === \"object\") {\n    if (typeof v.value === \"string\") return v.value.trim();\n    if (typeof v.label === \"string\") return v.label.trim();\n  }\n  return normStr(getFirstValue(v));\n}\n\nfunction normalizeYesNo(v) {\n  const s = normalizeChoice(v).toUpperCase();\n  if ([\"SIM\", \"S\", \"YES\", \"Y\", \"TRUE\"].includes(s)) return \"SIM\";\n  if ([\"NÃO\", \"NAO\", \"N\", \"NO\", \"FALSE\"].includes(s)) return \"NAO\";\n  return \"\";\n}\n\nfunction formatCurrencyBRL(n) {\n  const v = Number(n);\n  if (!Number.isFinite(v)) return \"R$ 0,00\";\n  return v.toLocaleString(\"pt-BR\", { style: \"currency\", currency: \"BRL\" });\n}\n\nfunction formatPercent(p) {\n  const v = Number(p);\n  if (!Number.isFinite(v)) return \"0,00%\";\n  return (v * 100).toLocaleString(\"pt-BR\", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + \"%\";\n}\n\nfunction monthlyRateFromAnnual(taxaAno) {\n  const a = Number(taxaAno);\n  if (!Number.isFinite(a) || a <= -1) return NaN;\n  return Math.pow(1 + a, 1 / 12) - 1;\n}\n\nfunction pickAmortSystem(json) {\n  // Prefer campos “normalizados”, mas tenta achar pelo rótulo do formulário também.\n  const direct =\n    json.sistemaAmortizador ||\n    json.sistemaAmortizadorNorm ||\n    json.amortizador ||\n    json.amortizationSystem;\n\n  let s = normalizeChoice(direct);\n\n  if (!s) {\n    // fallback: procura chave que contenha \"Sistema amort\"\n    const key = Object.keys(json).find((k) => k.toLowerCase().includes(\"sistema amort\"));\n    if (key) s = normalizeChoice(json[key]);\n  }\n\n  s = s.toUpperCase();\n  if (s.includes(\"PRICE\")) return \"PRICE\";\n  return \"SAC\"; // default\n}\n\nfunction calcParcelaPRICE(pv, i, n) {\n  // PMT = PV*i / (1 - (1+i)^-n)\n  if (!Number.isFinite(pv) || pv <= 0) return NaN;\n  if (!Number.isFinite(i) || i < 0) return NaN;\n  if (!Number.isFinite(n) || n <= 0) return NaN;\n\n  if (i === 0) return pv / n;\n  const denom = 1 - Math.pow(1 + i, -n);\n  if (denom <= 0) return NaN;\n  return (pv * i) / denom;\n}\n\nfunction calcParcelasSAC(pv, i, n) {\n  // Amortização constante: A = PV/n\n  // Parcela_t = A + saldo_devedor_anterior * i\n  if (!Number.isFinite(pv) || pv <= 0) return { primeira: NaN, ultima: NaN, amort: NaN };\n  if (!Number.isFinite(i) || i < 0) return { primeira: NaN, ultima: NaN, amort: NaN };\n  if (!Number.isFinite(n) || n <= 0) return { primeira: NaN, ultima: NaN, amort: NaN };\n\n  const amort = pv / n;\n  const primeira = amort + pv * i;\n  const saldoAntesUltima = pv - amort * (n - 1); // = pv/n\n  const ultima = amort + saldoAntesUltima * i;\n\n  return { primeira, ultima, amort };\n}\n\nconst inputs = $input.all();\n\nreturn inputs.map(({ json }) => {\n  const item = { ...json };\n\n  // ======== ENTRADAS PRINCIPAIS (do seu fluxo) ========\n  const bancoLabel = normStr(item.bancoLabel || item.bancoPretendidoLabel || item.bancoPretendido || \"\");\n  const bancoPretendido = normStr(item.bancoPretendido || \"\");\n  const modalidade = normStr(item.modalidade || item.tipoFinanciamento || \"\");\n  const cenario = \"RESIDENCIAL\"; // pelo seu print, você está usando residencial\n\n  const valorImovel = Number.isFinite(Number(item.valorImovelNumero))\n    ? Number(item.valorImovelNumero)\n    : toNumber(item.valorImovelNumero ?? item.valorImovel);\n\n  // financiamento informado (seu formulário pede)\n  const valorFinanciamentoInformado = Number.isFinite(Number(item.valorFinanciamentoNumero))\n    ? Number(item.valorFinanciamentoNumero)\n    : toNumber(item.valorFinanciamentoNumero ?? item.valorFinanciamento);\n\n  const rendaBruta = Number.isFinite(Number(item.rendaBrutaFamiliarNumero))\n    ? Number(item.rendaBrutaFamiliarNumero)\n    : toNumber(item.rendaBrutaFamiliarNumero ?? item.rendaBrutaFamiliar);\n\n  // entrada (recursos próprios) — seu validador já deixa alias valorEntradaNumero\n  const entradaRecursosProprios = Number.isFinite(Number(item.valorEntradaNumero))\n    ? Number(item.valorEntradaNumero)\n    : Number.isFinite(Number(item.valorEntradaRecursoProprioNumero))\n      ? Number(item.valorEntradaRecursoProprioNumero)\n      : toNumber(item.valorEntradaNumero ?? item.valorEntradaRecursoProprioNumero ?? item.valorEntrada);\n\n  // ======== CORREÇÃO FGTS (AQUI) ========\n  const possuiFGTSNorm = item.possuiFGTSNorm || item.possuiFGTS || \"\";\n  const vaiUsarFGTS = normalizeYesNo(possuiFGTSNorm);\n\n  const saldoFGTSNumero = Number.isFinite(Number(item.saldoFGTSNumero))\n    ? Number(item.saldoFGTSNumero)\n    : Number.isFinite(Number(item.saldoFGTS))\n      ? Number(item.saldoFGTS)\n      : toNumber(item.saldoFGTSNumero ?? item.saldoFGTS);\n\n  const fgtsConsiderado =\n    vaiUsarFGTS === \"SIM\" && Number.isFinite(saldoFGTSNumero) && saldoFGTSNumero > 0\n      ? saldoFGTSNumero\n      : 0;\n\n  // entrada total = recursos próprios + FGTS considerado\n  const entradaTotalConsiderada =\n    (Number.isFinite(entradaRecursosProprios) ? entradaRecursosProprios : 0) + fgtsConsiderado;\n\n  // ======== TAXA (vem do Motor de taxas) ========\n  let taxaAno = Number(item.taxaAno);\n  let taxaMes = Number(item.taxaMes);\n\n  if (!Number.isFinite(taxaAno)) taxaAno = toNumber(item.taxaAno);\n  if (!Number.isFinite(taxaMes)) taxaMes = toNumber(item.taxaMes);\n\n  if (!Number.isFinite(taxaMes) && Number.isFinite(taxaAno)) {\n    taxaMes = monthlyRateFromAnnual(taxaAno);\n  }\n\n  // ======== PRAZO ========\n  const prazoAnos = Number.isFinite(Number(item.prazoAnos)) ? Number(item.prazoAnos) : 30;\n  const nParcelas = Number.isFinite(Number(item.nParcelas)) ? Number(item.nParcelas) : prazoAnos * 12;\n\n  // ======== SISTEMA AMORTIZADOR ========\n  const sistemaAmortizador = pickAmortSystem(item);\n\n  // ======== VALOR FINANCIADO (estimado) ========\n  // Mantém seu comportamento: usa o informado; se vier vazio, tenta 80% do imóvel por padrão.\n  let valorFinanciado = Number.isFinite(valorFinanciamentoInformado) && valorFinanciamentoInformado > 0\n    ? valorFinanciamentoInformado\n    : (Number.isFinite(valorImovel) && valorImovel > 0 ? valorImovel * 0.8 : NaN);\n\n  // ======== PARCELAS ========\n  let parcelaPrimeira = NaN;\n  let parcelaUltima = NaN;\n  let parcelaAproximada = NaN;\n\n  if (sistemaAmortizador === \"PRICE\") {\n    const pmt = calcParcelaPRICE(valorFinanciado, taxaMes, nParcelas);\n    parcelaPrimeira = pmt;\n    parcelaUltima = pmt;\n    parcelaAproximada = pmt;\n  } else {\n    const sac = calcParcelasSAC(valorFinanciado, taxaMes, nParcelas);\n    parcelaPrimeira = sac.primeira;\n    parcelaUltima = sac.ultima;\n    parcelaAproximada = sac.primeira; // padrão do seu texto: usa a 1ª\n  }\n\n  // ======== MÉTRICAS ========\n  const ltv = Number.isFinite(valorFinanciado) && Number.isFinite(valorImovel) && valorImovel > 0\n    ? (valorFinanciado / valorImovel)\n    : null;\n\n  const comprometimentoRendaBruta = Number.isFinite(parcelaPrimeira) && Number.isFinite(rendaBruta) && rendaBruta > 0\n    ? (parcelaPrimeira / rendaBruta)\n    : null;\n\n  // ======== TEXTO ========\n  const bancoShow = bancoLabel || (bancoPretendido ? `Banco ${bancoPretendido}` : \"Banco\");\n  const condicaoTaxa = normStr(item.criterioSelecionado || item.produtoSelecionado || item.condicaoTaxa || \"\");\n\n  const linhaCondicao = condicaoTaxa ? `\\n- Condição de taxa: ${condicaoTaxa}` : \"\";\n\n  const taxaAnoStr = Number.isFinite(taxaAno) ? formatPercent(taxaAno) : \"—\";\n  const taxaMesStr = Number.isFinite(taxaMes) ? formatPercent(taxaMes) : \"—\";\n\n  const textoSimulacao =\n    `Simulação inicial aproximada feita por IA:\\n\\n` +\n    `- Banco pretendido: ${bancoShow}\\n` +\n    `- Cenário: ${cenario}\\n` +\n    `- Modalidade: ${modalidade || \"—\"}` +\n    `${linhaCondicao}\\n` +\n    `- Valor do imóvel: ${formatCurrencyBRL(valorImovel)}\\n` +\n    `- Entrada (recursos próprios): ${formatCurrencyBRL(entradaRecursosProprios)}\\n` +\n    `- FGTS considerado: ${formatCurrencyBRL(fgtsConsiderado)}\\n` +\n    `- Entrada total considerada: ${formatCurrencyBRL(entradaTotalConsiderada)}\\n` +\n    `- Valor financiado estimado: ${formatCurrencyBRL(valorFinanciado)}\\n` +\n    `- Prazo: ${prazoAnos} anos (${nParcelas} meses)\\n` +\n    `- Taxa de referência: ${taxaAnoStr} a.a (${taxaMesStr} a.m)\\n` +\n    `- Sistema amortizador: ${sistemaAmortizador} ${sistemaAmortizador === \"SAC\" ? \"(parcela decrescente)\" : \"(parcela fixa)\"}\\n` +\n    `- Parcela aprox. (1ª): ${formatCurrencyBRL(parcelaPrimeira)}\\n` +\n    `- Parcela (última): ${formatCurrencyBRL(parcelaUltima)}\\n` +\n    (Number.isFinite(rendaBruta) ? `- Renda bruta familiar informada: ${formatCurrencyBRL(rendaBruta)}\\n` : \"\") +\n    (ltv !== null ? `- LTV (financiamento / imóvel): ${formatPercent(ltv)}\\n` : \"\") +\n    (comprometimentoRendaBruta !== null ? `- Comprometimento aprox. da renda bruta: ${formatPercent(comprometimentoRendaBruta)}\\n` : \"\") +\n    `\\nObservação: Esta é uma simulação para referência. A análise detalhada pode variar conforme política vigente do banco, perfil e validação documental.`;\n\n  // ======== SAÍDA (mantém campos que você já usa) ========\n  item.saldoFGTS = Number.isFinite(saldoFGTSNumero) ? saldoFGTSNumero : 0;     // “digitado”\n  item.fgtsConsiderado = fgtsConsiderado;                                      // “considerado”\n  item.entradaTotalConsiderada = entradaTotalConsiderada;\n\n  item.valorFinanciado = valorFinanciado;\n\n  item.parcelaAproximada = parcelaAproximada;\n  item.parcelaPrimeira = parcelaPrimeira;\n  item.parcelaUltima = parcelaUltima;\n\n  item.ltv = ltv;\n  item.comprometimentoRendaBruta = comprometimentoRendaBruta;\n\n  item.sistemaAmortizador = sistemaAmortizador;\n  item.textoSimulacao = textoSimulacao;\n\n  return { json: item };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -176,
+        160
+      ],
+      "id": "a63e0b24-dab1-4ac1-b064-07fab66e5080",
+      "name": "Simulação em JS"
+    },
+    {
+      "parameters": {
+        "content": "## Separação de dados válidos ou inválidos, simulação em JS\n",
+        "height": 336,
+        "width": 864,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -656,
+        48
+      ],
+      "typeVersion": 1,
+      "id": "08d26b19-096d-4883-9246-05b791dc3b39",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Atualiza ou cria o contato, unifica os dados (Merge)",
+        "height": 448,
+        "width": 1136,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        208,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "928a6ae6-7de9-4a12-aca1-e39e903eea51",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Adquire ID e envia a mensagem de simulação para o cliente\n",
+        "height": 448,
+        "width": 608
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1328,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "48b6ff1b-ce1b-4126-b3a1-ab5074689b0a",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Criação da planilha + saída de dados\n",
+        "height": 256,
+        "width": 384,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1088,
+        80
+      ],
+      "typeVersion": 1,
+      "id": "f8b41441-ede7-4d5a-a7d4-19769755b8b3",
+      "name": "Criação da planilha"
+    },
+    {
+      "parameters": {
+        "resource": "spreadsheet",
+        "title": "Relatorio_Leads_Financiamento",
+        "sheetsUi": {
+          "sheetValues": [
+            {
+              "title": "Leads"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        160
+      ],
+      "id": "92e6a597-57d7-4a78-bd84-59e73fb70fce",
+      "name": "Planilha criada",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_NAME"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/REPLACE_WITH_SHEET_ID/edit",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1305857074,
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/REPLACE_WITH_SHEET_ID/edit"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "A": "={{ $json.createdAt }}",
+            "B": "={{$node[\"Separação de dados1\"].json[\"Digite seu nome completo\"]}}",
+            "C": "={{ $('Merge').item.json.phoneNumberFormatted }}",
+            "D": "={{ $('Merge').item.json.email }}",
+            "F": "={{$node[\"Simulação em JS\"].json[\"valorImovel\"]}}",
+            "E": "={{\"Instagram\"}}",
+            "G": "={{$node[\"Simulação em JS\"].json[\"valorEntrada\"]}}",
+            "H": "={{$node[\"Simulação em JS\"].json[\"valorFinanciado\"]}}",
+            "I": "={{$node[\"Simulação em JS\"].json[\"prazoAnos\"]}}",
+            "J": "={{$node[\"Simulação em JS\"].json[\"parcelaAproximada\"]}}",
+            "K": "={{$node[\"Simulação em JS\"].json[\"nivelRisco\"]}}",
+            "L": "={{$node[\"Simulação em JS\"].json[\"ltv\"]}}",
+            "M": "={{$node[\"Simulação em JS\"].json[\"comprometimentoRenda\"]}}",
+            "N": "={{$node[\"Merge\"].json[\"id\"]}}\n"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "A",
+              "displayName": "A",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "B",
+              "displayName": "B",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "C",
+              "displayName": "C",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "D",
+              "displayName": "D",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "E",
+              "displayName": "E",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "F",
+              "displayName": "F",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "G",
+              "displayName": "G",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "H",
+              "displayName": "H",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "I",
+              "displayName": "I",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "J",
+              "displayName": "J",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "K",
+              "displayName": "K",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "L",
+              "displayName": "L",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "M",
+              "displayName": "M",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "N",
+              "displayName": "N",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1312,
+        160
+      ],
+      "id": "6a869e7b-5cee-45d4-a03b-94938569aa02",
+      "name": "Output dos dados em .xlsx",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bf2faae4-82d2-4b3f-bf53-2d4bc654038c",
+              "name": "CONTATO",
+              "value": "={{ $json.C }}",
+              "type": "string"
+            },
+            {
+              "id": "00a27ead-7863-4173-9b4d-6ef09ad7a8e7",
+              "name": "textoSimulacao",
+              "value": "={{ $('Simulação em JS').item.json.textoSimulacao }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1552,
+        160
+      ],
+      "id": "ae052879-1ad7-400a-b5d1-da6ba1c5c763",
+      "name": "Separação de dados2"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendText",
+        "textMessage": "={{ $json.textoSimulacao }}",
+        "departmentId": "REPLACE_WITH_WTS_DEPARTMENT_ID",
+        "userIdByDepartment": "REPLACE_WITH_WTS_USER_ID",
+        "channelId": "REPLACE_WITH_WTS_CHANNEL_ID",
+        "numberToSend": "={{ $json.CONTATO }}"
+      },
+      "type": "n8n-nodes-wts.wtsChat",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        160
+      ],
+      "id": "4c73e6d7-3e33-4785-863b-984c20adda48",
+      "name": "Mandar a mensagem pro cliente",
+      "credentials": {
+        "wtsApi": {
+          "id": "REPLACE_WITH_WTS_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_WTS_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Direcionamento a um especialista + Adição de contato no painel no CRM + Aviso no WhatsApp\n\n",
+        "height": 448,
+        "width": 1360,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1936,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "d1c45c70-228a-44d8-ad90-bc3e36f58b7d",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $json;\nconst errors = [];\n\n/* =========================\n   HELPERS\n========================= */\n\nfunction onlyDigits(v) {\n  return String(v ?? \"\").replace(/\\D/g, \"\");\n}\n\nfunction toNumber(v) {\n  if (v === null || v === undefined) return NaN;\n  const s = String(v).trim();\n  if (!s) return NaN;\n\n  const n = parseFloat(s.replace(/\\./g, \"\").replace(\",\", \".\"));\n  return Number.isFinite(n) ? n : NaN;\n}\n\nfunction getFirstValue(raw) {\n  if (Array.isArray(raw)) return raw[0];\n  return raw;\n}\n\nfunction normalizeText(v) {\n  return String(v ?? \"\").trim();\n}\n\nfunction normalizeChoice(v) {\n  if (v && typeof v === \"object\") {\n    if (typeof v.value === \"string\") return v.value.trim();\n    if (typeof v.label === \"string\") return v.label.trim();\n  }\n  return normalizeText(getFirstValue(v));\n}\n\nfunction normalizeYesNo(v) {\n  const s = normalizeChoice(v).toUpperCase();\n  if ([\"SIM\", \"S\", \"YES\", \"Y\", \"TRUE\"].includes(s)) return \"SIM\";\n  if ([\"NÃO\", \"NAO\", \"N\", \"NO\", \"FALSE\"].includes(s)) return \"NAO\";\n  return \"\";\n}\n\n// dd/mm/aaaa ou yyyy-mm-dd\nfunction parseDateAny(v) {\n  const s = normalizeText(v);\n  if (!s) return null;\n\n  if (/^\\d{2}\\/\\d{2}\\/\\d{4}$/.test(s)) {\n    const [dd, mm, yyyy] = s.split(\"/\").map(Number);\n    const d = new Date(yyyy, mm - 1, dd);\n    return Number.isFinite(d.getTime()) ? d : null;\n  }\n\n  const d = new Date(s);\n  return Number.isFinite(d.getTime()) ? d : null;\n}\n\nfunction calcAge(birthDate) {\n  if (!birthDate) return null;\n  const today = new Date();\n  let age = today.getFullYear() - birthDate.getFullYear();\n  const m = today.getMonth() - birthDate.getMonth();\n  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;\n  return age >= 0 && age <= 120 ? age : null;\n}\n\n/* =========================\n   RÓTULOS DO FORMULÁRIO\n========================= */\n\nconst FIELDS = {\n  nomeCompleto: \"Digite seu nome completo\",\n  cpf: \"Digite seu CPF\",\n\n  // ✅ atualizado conforme sua nova pergunta\n  celular: \"Digite seu número de celular, DDD + Número. Ex: 11 9...\",\n\n  email:\n    \"Digite seu e-mail (em caso de falhas, um e-mail será enviado solicitando o preenchimento do formulário com os dados corretos).\",\n\n  valorFinanciamento: \"Digite o valor do financiamento\",\n  modalidade: \"Qual o tipo de financiamento você pretende fazer?\",\n  valorImovel: \"Digite o valor do imóvel\",\n  rendaBrutaFamiliar: \"Qual a renda bruta familiar de todos os participantes?\",\n\n  possuiFGTS: \"Possui FGTS?\",\n  saldoFGTS: \"Qual o valor aproximado do saldo do FGTS em caso de utilização?\",\n\n  pretendeEntradaRecursoProprio: \"Pretende dar algum valor de entrada (recurso próprio)?\",\n  valorEntradaRecursoProprio: \"Se sim, qual valor você pretende dar de entrada\",\n\n  bancoPretendido: \"Qual banco você pretende realizar seu financiamento?\",\n  uf: \"Digite seu estado\",\n\n  dataNascimentoMaiorIdade: \"Qual a data de nascimento do proponente de maior idade?\",\n\n  consentimentoLGPD:\n    \"Termo de consentimento. Declaro que li e concordo com o uso dos meus dados pessoais para realização de simulações de crédito imobiliário, contato pela GoodCredit e registro das informações necessárias, em conformidade com a LGPD.\",\n};\n\n/* =========================\n   LEITURA\n========================= */\n\nconst nomeCompleto = normalizeText(item[FIELDS.nomeCompleto]);\nconst cpfBruto = item[FIELDS.cpf];\n\n// ✅ leitura robusta do celular: tenta pelo novo rótulo, mas aceita o antigo também (para evitar falhas em testes antigos)\nconst celularBruto =\n  item[FIELDS.celular] ??\n  item[\"Digite seu número de celular\"] ??\n  item[\"Digite seu número de celular (com DDD)\"] ??\n  item[\"Whatsapp para resposta (com DDD)\"] ??\n  item[\"WhatsApp para resposta (com DDD)\"] ??\n  item[\"WhatsApp para resposta\"] ??\n  item[\"Whatsapp para resposta\"] ??\n  item[\"Celular\"] ??\n  item[\"Telefone\"] ??\n  \"\";\n\nconst emailRaw = item[FIELDS.email] ?? \"\";\n\nconst valorFinStr = item[FIELDS.valorFinanciamento];\nconst modalidade = normalizeChoice(item[FIELDS.modalidade]);\n\nconst valorImovelStr = item[FIELDS.valorImovel];\nconst rendaBrutaStr = item[FIELDS.rendaBrutaFamiliar];\n\nconst possuiFGTS = normalizeYesNo(item[FIELDS.possuiFGTS]);\nconst saldoFGTSStr = item[FIELDS.saldoFGTS];\n\nconst pretendeEntradaRP = normalizeYesNo(item[FIELDS.pretendeEntradaRecursoProprio]);\nconst valorEntradaRPStr = item[FIELDS.valorEntradaRecursoProprio];\n\nconst bancoPretendido = normalizeChoice(item[FIELDS.bancoPretendido]);\n\nconst ufBruto = normalizeText(item[FIELDS.uf]);\nconst consentLGPD = normalizeYesNo(item[FIELDS.consentimentoLGPD]);\n\nconst nascimentoMaiorIdadeRaw = normalizeText(item[FIELDS.dataNascimentoMaiorIdade]);\n\n/* =========================\n   NOME\n========================= */\nif (!nomeCompleto || nomeCompleto.length < 5 || !nomeCompleto.includes(\" \")) {\n  errors.push(\"Nome completo inválido. Informe nome e sobrenome.\");\n}\n\n/* =========================\n   CPF\n========================= */\nconst cpf = onlyDigits(cpfBruto);\n\nfunction isValidCPF(c) {\n  if (!c || c.length !== 11 || /^(\\d)\\1+$/.test(c)) return false;\n\n  let soma = 0;\n  for (let i = 0; i < 9; i++) soma += parseInt(c.charAt(i), 10) * (10 - i);\n  let resto = (soma * 10) % 11;\n  if (resto === 10) resto = 0;\n  if (resto !== parseInt(c.charAt(9), 10)) return false;\n\n  soma = 0;\n  for (let i = 0; i < 10; i++) soma += parseInt(c.charAt(i), 10) * (11 - i);\n  resto = (soma * 10) % 11;\n  if (resto === 10) resto = 0;\n\n  return resto === parseInt(c.charAt(10), 10);\n}\n\nif (cpf.length !== 11 || !isValidCPF(cpf)) {\n  errors.push(\"CPF inválido.\");\n}\n\n/* =========================\n   CELULAR (DDD + 9 dígitos)\n========================= */\nconst celularSomenteDigitos = onlyDigits(celularBruto || \"\");\nif (!/^\\d{11}$/.test(celularSomenteDigitos)) {\n  errors.push(`Telefone celular inválido. Informe DDD + 9 dígitos (11 dígitos).`);\n} else {\n  const dddNum = Number(celularSomenteDigitos.slice(0, 2));\n  const terceiroDigito = celularSomenteDigitos.charAt(2);\n  if (!Number.isInteger(dddNum) || dddNum < 11 || dddNum > 99) errors.push(\"DDD do celular inválido.\");\n  if (terceiroDigito !== \"9\") errors.push(\"Número de celular inválido. Use DDD + 9xxxxxxxx.\");\n  if (/^(\\d)\\1{10}$/.test(celularSomenteDigitos)) errors.push(\"Telefone celular inválido (sequência repetida).\");\n}\nitem.celularLimpo = celularSomenteDigitos;\n\n/* =========================\n   E-MAIL\n========================= */\nconst emailStr = normalizeText(emailRaw);\nif (!emailStr) {\n  errors.push(\"E-mail não informado.\");\n} else {\n  const regexEmailBoa =\n    /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(\\.[a-z0-9-]+)+$/i;\n  if (!regexEmailBoa.test(emailStr)) errors.push(\"E-mail em formato inválido.\");\n}\n\n/* =========================\n   NÚMEROS\n========================= */\nconst valorImovel = toNumber(valorImovelStr);\nconst valorFinanciamento = toNumber(valorFinStr);\nconst rendaBrutaFamiliar = toNumber(rendaBrutaStr);\n\nif (!Number.isFinite(valorImovel) || valorImovel <= 0) errors.push(\"Valor do imóvel inválido ou não informado.\");\nif (!Number.isFinite(valorFinanciamento) || valorFinanciamento <= 0) errors.push(\"Valor do financiamento inválido ou não informado.\");\nif (!Number.isFinite(rendaBrutaFamiliar) || rendaBrutaFamiliar <= 0) errors.push(\"Renda bruta familiar inválida ou não informada.\");\nif (Number.isFinite(valorImovel) && Number.isFinite(valorFinanciamento) && valorFinanciamento > valorImovel) {\n  errors.push(\"Valor do financiamento maior que o valor do imóvel.\");\n}\n\n/* =========================\n   MODALIDADE\n========================= */\nif (!modalidade || modalidade.toLowerCase().includes(\"select\")) {\n  errors.push(\"Selecione o tipo de financiamento (Novo/Usado/Terreno).\");\n}\n\n/* =========================\n   FGTS\n========================= */\nif (!possuiFGTS) errors.push(\"Informe se possui FGTS (Sim ou Não).\");\nconst saldoFGTS = toNumber(saldoFGTSStr);\nconst saldoFGTSFinal = (possuiFGTS === \"SIM\" && Number.isFinite(saldoFGTS) && saldoFGTS >= 0) ? saldoFGTS : 0;\n\n/* =========================\n   ENTRADA (RECURSO PRÓPRIO)\n========================= */\nif (!pretendeEntradaRP) errors.push(\"Informe se pretende dar entrada com recurso próprio (Sim ou Não).\");\n\nconst valorEntradaRecursoProprio = toNumber(valorEntradaRPStr);\nlet valorEntradaRecursoProprioFinal = 0;\n\nif (pretendeEntradaRP === \"SIM\") {\n  if (!Number.isFinite(valorEntradaRecursoProprio) || valorEntradaRecursoProprio <= 0) {\n    errors.push(\"Informe o valor de entrada (recurso próprio).\");\n  } else {\n    valorEntradaRecursoProprioFinal = valorEntradaRecursoProprio;\n  }\n} else if (pretendeEntradaRP === \"NAO\") {\n  valorEntradaRecursoProprioFinal = 0;\n}\n\nif (Number.isFinite(valorImovel) && valorEntradaRecursoProprioFinal > valorImovel) {\n  errors.push(\"Valor de entrada (recurso próprio) maior que o valor do imóvel.\");\n}\n\n/* =========================\n   BANCO\n========================= */\nif (!bancoPretendido) errors.push(\"Selecione o banco pretendido.\");\n\n/* =========================\n   UF (aceita sigla e nome)\n========================= */\nconst ufsValidas = new Set([\n  \"AC\",\"AL\",\"AP\",\"AM\",\"BA\",\"CE\",\"DF\",\"ES\",\"GO\",\"MA\",\n  \"MT\",\"MS\",\"MG\",\"PA\",\"PB\",\"PR\",\"PE\",\"PI\",\"RJ\",\"RN\",\n  \"RS\",\"RO\",\"RR\",\"SC\",\"SP\",\"SE\",\"TO\"\n]);\n\nfunction normalizeUF(s) {\n  const raw = normalizeText(s).toUpperCase();\n\n  if (ufsValidas.has(raw)) return raw;\n\n  const noAccents = raw.normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\");\n  const map = {\n    \"ACRE\": \"AC\",\n    \"ALAGOAS\": \"AL\",\n    \"AMAPA\": \"AP\",\n    \"AMAZONAS\": \"AM\",\n    \"BAHIA\": \"BA\",\n    \"CEARA\": \"CE\",\n    \"DISTRITO FEDERAL\": \"DF\",\n    \"ESPIRITO SANTO\": \"ES\",\n    \"GOIAS\": \"GO\",\n    \"MARANHAO\": \"MA\",\n    \"MATO GROSSO\": \"MT\",\n    \"MATO GROSSO DO SUL\": \"MS\",\n    \"MINAS GERAIS\": \"MG\",\n    \"PARA\": \"PA\",\n    \"PARAIBA\": \"PB\",\n    \"PARANA\": \"PR\",\n    \"PERNAMBUCO\": \"PE\",\n    \"PIAUI\": \"PI\",\n    \"RIO DE JANEIRO\": \"RJ\",\n    \"RIO GRANDE DO NORTE\": \"RN\",\n    \"RIO GRANDE DO SUL\": \"RS\",\n    \"RONDONIA\": \"RO\",\n    \"RORAIMA\": \"RR\",\n    \"SANTA CATARINA\": \"SC\",\n    \"SAO PAULO\": \"SP\",\n    \"SERGIPE\": \"SE\",\n    \"TOCANTINS\": \"TO\",\n  };\n\n  return map[noAccents] || \"\";\n}\n\nconst uf = normalizeUF(ufBruto);\nif (!uf) errors.push(\"UF inválida. Informe a sigla (SP) ou o nome (São Paulo).\");\n\n/* =========================\n   DATA NASCIMENTO (MAIOR IDADE)\n========================= */\nconst nascimentoMaiorIdade = parseDateAny(nascimentoMaiorIdadeRaw);\nconst idadeMaiorProponente = calcAge(nascimentoMaiorIdade);\n\nif (!nascimentoMaiorIdade) {\n  errors.push(\"Data de nascimento do proponente mais velho inválida ou não informada.\");\n} else {\n  const hoje = new Date();\n  if (nascimentoMaiorIdade > hoje) errors.push(\"Data de nascimento não pode ser futura.\");\n  if (idadeMaiorProponente !== null && idadeMaiorProponente < 18) errors.push(\"Proponente mais velho deve ter 18+ anos.\");\n}\n\n/* =========================\n   CONSENTIMENTO LGPD\n========================= */\nif (consentLGPD !== \"SIM\") errors.push(\"É necessário aceitar o termo de consentimento (LGPD) para prosseguir.\");\n\n/* =========================\n   SAÍDA\n========================= */\nitem.valid = errors.length === 0;\nitem.validationErrors = errors;\n\nitem.nomeCompletoNormalizado = nomeCompleto;\nitem.cpfLimpo = cpf;\nitem.emailValidado = emailStr;\nitem.uf = uf;\n\nitem.valorImovelNumero = valorImovel;\nitem.valorFinanciamentoNumero = valorFinanciamento;\nitem.rendaBrutaFamiliarNumero = rendaBrutaFamiliar;\n\nitem.possuiFGTSNorm = possuiFGTS;\nitem.saldoFGTSNumero = saldoFGTSFinal;\n\nitem.entradaRecursoProprioNorm = pretendeEntradaRP;\nitem.valorEntradaRecursoProprioNumero = valorEntradaRecursoProprioFinal;\n\n// alias compatível com nós antigos\nitem.valorEntradaNumero = valorEntradaRecursoProprioFinal;\n\nitem.modalidade = modalidade;\nitem.bancoPretendido = bancoPretendido;\n\nitem.dataNascimentoMaiorIdadeRaw = nascimentoMaiorIdadeRaw;\nitem.idadeMaiorProponente = idadeMaiorProponente;\nitem.dataNascimentoMaiorIdadeISO = nascimentoMaiorIdade ? nascimentoMaiorIdade.toISOString().slice(0, 10) : null;\n\nreturn [item];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -816,
+        208
+      ],
+      "id": "b23ce389-0fe5-49ca-a343-68d09c6ce0cb",
+      "name": "Validação de dados"
+    },
+    {
+      "parameters": {
+        "content": "## Relatório em caso de falhas + envio de um e-mail informando o erro",
+        "height": 416,
+        "width": 976,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -432,
+        384
+      ],
+      "typeVersion": 1,
+      "id": "5bd3bb2f-a5c9-4ed4-80f4-d2dc42673ace",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5d488622-7c33-4433-b2b8-ffb390126e49",
+              "leftValue": "={{$json.valid}}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -608,
+        176
+      ],
+      "id": "323b324b-f86c-4f3f-a95a-df010cd8f32b",
+      "name": "Dados válidos ou inválidos"
+    },
+    {
+      "parameters": {
+        "formTitle": "Simulação",
+        "formDescription": "Faça sua simulação em instantes!",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Digite seu nome completo",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Digite seu CPF",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Qual a data de nascimento do proponente de maior idade?",
+              "fieldType": "date",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Digite seu número de celular, DDD + Número. Ex: 11 9...",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Digite seu e-mail (em caso de falhas, um e-mail será enviado solicitando o preenchimento do formulário com os dados corretos).",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Qual é o tipo de financiamento?",
+              "fieldType": "checkbox",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Residencial"
+                  },
+                  {
+                    "option": "Comercial"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Digite o valor do financiamento",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Qual o tipo de financiamento você pretende fazer?",
+              "fieldType": "checkbox",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Aquisição de Imóvel Novo"
+                  },
+                  {
+                    "option": "Aquisição de Imóvel Usado"
+                  },
+                  {
+                    "option": "Aquisição de Terreno"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Digite o valor do imóvel",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Qual a renda bruta familiar de todos os participantes?",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Possui FGTS?",
+              "fieldType": "checkbox",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Sim"
+                  },
+                  {
+                    "option": "Não"
+                  }
+                ]
+              },
+              "limitSelection": "exact",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Qual o valor aproximado do saldo do FGTS em caso de utilização?",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Qual banco você pretende realizar seu financiamento?",
+              "fieldType": "checkbox",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Caixa"
+                  },
+                  {
+                    "option": "Inter"
+                  },
+                  {
+                    "option": "Bradesco"
+                  },
+                  {
+                    "option": "Itau"
+                  },
+                  {
+                    "option": "Santander"
+                  }
+                ]
+              },
+              "limitSelection": "range",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Pretende dar algum valor de entrada (recurso próprio)?",
+              "fieldType": "checkbox",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Sim"
+                  },
+                  {
+                    "option": "Não"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Se sim, qual valor você pretende dar de entrada",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Sistema amortizador",
+              "fieldType": "checkbox",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "SAC"
+                  },
+                  {
+                    "option": "PRICE"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Digite seu estado",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Termo de consentimento. Declaro que li e concordo com o uso dos meus dados pessoais para realização de simulações de crédito imobiliário, contato pela GoodCredit e registro das informações necessárias, em conformidade com a LGPD.",
+              "fieldType": "checkbox",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Sim"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Termo de consentimento: declaro que estou ciente de que essa simulação é feita por IA e não representa os valores exatos das parcelas.",
+              "fieldType": "checkbox",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Sim"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -1024,
+        208
+      ],
+      "id": "4e7e9b6c-51a9-48bc-b78a-c216d0e2d73f",
+      "name": "Formulário",
+      "webhookId": "REDACTED_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendText",
+        "textMessage": "=Olá {{ $('Output dos dados em .xlsx').item.json.B }} 😊\n\nRecebemos a sua simulação!\n\nAgora, uma especialista da equipe GoodCredit entrará em contato com você para entender melhor o seu perfil, esclarecer dúvidas e seguir com o passo a passo do financiamento. \n\nFique atento(a) às nossas mensagens. 🏡\n",
+        "departmentId": "REPLACE_WITH_WTS_DEPARTMENT_ID",
+        "userIdByDepartment": "REPLACE_WITH_WTS_USER_ID",
+        "channelId": "REPLACE_WITH_WTS_CHANNEL_ID",
+        "numberToSend": "={{ $('Output dos dados em .xlsx').item.json.C }}"
+      },
+      "type": "n8n-nodes-wts.wtsChat",
+      "typeVersion": 1,
+      "position": [
+        1968,
+        160
+      ],
+      "id": "07528326-3f58-48bb-b991-6143c98c0084",
+      "name": "Direcionamento a especialistas",
+      "credentials": {
+        "wtsApi": {
+          "id": "REPLACE_WITH_WTS_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_WTS_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        3344,
+        160
+      ],
+      "id": "0e696547-4d34-4d2b-9c33-fa3dc6f06a4e",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/REPLACE_WITH_SHEET_ID/edit",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/REPLACE_WITH_SHEET_ID/edit"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "A": "={{ $('Validação de dados').item.json.submittedAt }}",
+            "B": "={{$json[\"Digite seu nome completo\"]}}",
+            "C": "={{$json[\"Digite seu número de celular\"]}}",
+            "D": "={{ $json['Digite seu e-mail (em caso de falhas, um e-mail será enviado solicitando o preenchimento do formulário com os dados corretos).'] }}",
+            "E": "={{$json[\"cpfLimpo\"] || $json[\"Digite seu CPF\"]}}",
+            "F": "={{$json[\"uf\"] || $json[\"Digite seu estado\"]}}",
+            "G": "={{$json[\"Digite o valor do imóvel\"]}}",
+            "H": "={{$json[\"Digite o valor do financiamento\"]}}",
+            "I": "={{$json[\"validationErrors\"].join(\" | \")}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "A",
+              "displayName": "A",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "B",
+              "displayName": "B",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "C",
+              "displayName": "C",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "D",
+              "displayName": "D",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "E",
+              "displayName": "E",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "F",
+              "displayName": "F",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "G",
+              "displayName": "G",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "H",
+              "displayName": "H",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "I",
+              "displayName": "I",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -352,
+        496
+      ],
+      "id": "7ca1e074-f449-49c4-8df2-3b023a7c16eb",
+      "name": "Relatório em caso de falhas",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.D }}",
+        "subject": "Erro ao realizar a simulação",
+        "emailType": "text",
+        "message": "=Olá, {{ $json.B }}.  Ocorreu um erro ao tentar processar sua simulação enviada pelo formulário.  \n\nDados recebidos:  \n- Nome: {{ $json[\"B\"] || \"não informado\" }}   \n- E-mail: {{ $json[\"D\"] || \"não informado\" }}   \n- Telefone: {{ $json[\"C\"] || \"não informado\" }}   \n- Valor do imóvel: {{ $json[\"G\"] || \"não informado\" }}   \n- Valor de financiamento: {{ $json[\"H\"] || \"não informado\" }}       \n\nMotivo do erro: {{ $json[\"I\"] || \"Motivo não informado (ver planilha de erros).\" }}      \n\nCaso queira refazer sua simulação, acesse novamente o formulário e preencha corretamente os dados.\n\nLink para acessar o formulário novamente: https://YOUR_N8N_DOMAIN/form/REPLACE_WITH_FORM_ID",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        96,
+        432
+      ],
+      "id": "8cba49e8-3002-4f74-ba84-676bc1f39ad7",
+      "name": "Envio de e-mail",
+      "webhookId": "REDACTED_WEBHOOK_ID",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_GMAIL_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_GMAIL_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "26a12f6c-8eb6-44dc-a651-19e803af0ae9",
+              "leftValue": "@hotmail",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "2ece3f58-a47d-4378-b99a-395d6223460e",
+              "leftValue": "@outlook",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "203b3397-8d0e-4c23-b78d-b1fe61034026",
+              "leftValue": "@gmail",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -144,
+        496
+      ],
+      "id": "a3e0a094-9b21-4ca4-868d-f907e8b3d99f",
+      "name": "If1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        96,
+        640
+      ],
+      "id": "b8b4818f-fdc7-480e-bfb5-9d4e4363b26d",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "content": "## Fim \n   ",
+        "height": 256,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3296,
+        64
+      ],
+      "typeVersion": 1,
+      "id": "86da167f-642d-42c6-839c-2801f74ac28a",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $json;\n\n/**\n * ==========================================================\n * MOTOR DE TAXAS (GoodCredit) — Atualizado\n * - Considera banco escolhido (Caixa/Inter/Bradesco/Itaú/Santander)\n * - Caixa: aplica MCMV (Faixas 1–4) conforme sua imagem\n * - Se não for elegível MCMV (renda/limite imóvel/modalidade), cai para SBPE (Caixa)\n * - Passa adiante sistema amortizador (SAC/PRICE)\n * ==========================================================\n */\n\n/** =========================\n *  CONFIG\n * ========================= */\nconst CONFIG = {\n  // Taxas FIXAS (fora MCMV) — ajuste se quiser\n  TAXAS_FIXAS_AA: {\n    INTER: 0.0865,       // 8,65% a.a\n    BRADESCO: 0.1090,    // 10,90% a.a (exemplo que você já usou no print)\n    ITAU: 0.1154,        // 11,54% a.a\n    SANTANDER: 0.1244,   // 12,44% a.a\n    CAIXA_SBPE: 0.1149,  // 11,49% a.a (sua anotação de SBPE)\n  },\n\n  // Estados (para escolher taxa menor/maior quando houver 2 taxas na faixa)\n  // Regra prática: Norte+Nordeste = taxa menor; demais = taxa maior\n  UFS_NORTE_NORDESTE: new Set([\n    \"AC\",\"AL\",\"AP\",\"AM\",\"BA\",\"CE\",\"MA\",\"PA\",\"PB\",\"PE\",\"PI\",\"RN\",\"RO\",\"RR\",\"SE\",\"TO\"\n  ]),\n\n  // MCMV (conforme sua imagem)\n  // Onde houver 2 juros, usamos:\n  // - UFs Norte/Nordeste => taxaMin\n  // - demais => taxaMax\n  MCMV: {\n    // Faixa 1: até 3.200,00 — juros 4,25% e 4,59%\n    F1: {\n      rendaMin: 0,\n      rendaMax: 3200.0,\n      taxaMin: 0.0425,\n      taxaMax: 0.0459,\n      novo: { ltv: 0.80, valorMaxImovel: 264000.0 },\n      usado:{ ltv: 0.80, valorMaxImovel: 270000.0 },\n    },\n\n    // Faixa 2: 3.200,01 até 5.000,00 — juros 5,12% e 6,70%\n    F2: {\n      rendaMin: 3200.01,\n      rendaMax: 5000.0,\n      taxaMin: 0.0512,\n      taxaMax: 0.0670,\n      novo: { ltv: 0.80, valorMaxImovel: 264000.0 },\n      usado:{ ltv: 0.80, valorMaxImovel: 270000.0 },\n    },\n\n    // Faixa 3: 5.000,01 até 8.600,00 — juros 7,93%\n    F3: {\n      rendaMin: 5000.01,\n      rendaMax: 8600.0,\n      taxa: 0.0793,\n      novo: { ltv: 0.80, valorMaxImovel: 350000.0 },\n      usado:{ ltv: 0.65, valorMaxImovel: 264000.0 },\n    },\n\n    // Faixa 4: 8.600,01 até 12.000,00 — juros 10,47%\n    F4: {\n      rendaMin: 8600.01,\n      rendaMax: 12000.0,\n      taxa: 0.1047,\n      novo: { ltv: 0.80, valorMaxImovel: 500000.0 },\n      usado:{ ltv: 0.60, valorMaxImovel: 500000.0 },\n    },\n  },\n};\n\n/** =========================\n *  HELPERS\n * ========================= */\nfunction normStr(v) { return String(v ?? \"\").trim(); }\nfunction upper(v) { return normStr(v).toUpperCase(); }\nfunction toNumber(v) {\n  const s = normStr(v);\n  if (!s) return 0;\n  const cleaned = s.replace(/[^\\d.,-]/g, \"\");\n  if (cleaned.includes(\",\")) {\n    const n = parseFloat(cleaned.replace(/\\./g, \"\").replace(\",\", \".\"));\n    return Number.isFinite(n) ? n : 0;\n  }\n  const n = parseFloat(cleaned.replace(/\\./g, \"\"));\n  return Number.isFinite(n) ? n : 0;\n}\nfunction pick(keys, fallback = \"\") {\n  for (const k of keys) {\n    if (item[k] !== undefined && item[k] !== null && normStr(item[k]) !== \"\") return item[k];\n  }\n  return fallback;\n}\nfunction toStringArray(v) {\n  if (Array.isArray(v)) return v.map((x) => normStr(x)).filter(Boolean);\n  const s = normStr(v);\n  return s ? [s] : [];\n}\nfunction normalizeAmortizador(raw) {\n  const arr = toStringArray(raw).map(upper);\n  if (arr.includes(\"SAC\")) return \"SAC\";\n  if (arr.includes(\"PRICE\")) return \"PRICE\";\n  const s = upper(raw);\n  if (s.includes(\"SAC\")) return \"SAC\";\n  if (s.includes(\"PRICE\")) return \"PRICE\";\n  return \"SAC\"; // default\n}\nfunction detectModalidadeNovoOuUsado(mod) {\n  const m = upper(mod);\n  if (m.includes(\"USADO\")) return \"usado\";\n  if (m.includes(\"NOVO\")) return \"novo\";\n  // terreno ou outros\n  return \"\";\n}\nfunction detectCenario(tipo, mod) {\n  const t = upper(tipo);\n  const m = upper(mod);\n  if (t.includes(\"COMERCIAL\")) return \"COMERCIAL\";\n  if (m.includes(\"TERRENO\")) return \"TERRENO\";\n  return \"RESIDENCIAL\";\n}\n\n/** =========================\n *  LEITURA\n * ========================= */\nconst bancoPretendidoRaw = pick(\n  [\"Qual banco você pretende realizar seu financiamento?\", \"Banco pretendido\", \"bancoPretendido\"],\n  \"\"\n);\n\nconst tipoFinanciamento = pick(\n  [\"Qual é o tipo de financiamento?\", \"Tipo de financiamento\", \"tipoFinanciamento\"],\n  \"\"\n);\n\nconst modalidade = pick(\n  [\"Qual o tipo de financiamento você pretende fazer?\", \"Modalidade\", \"tipoOperacao\"],\n  \"\"\n);\n\nconst uf = upper(pick([\"Digite seu estado\", \"UF\", \"uf\"], \"\"));\n\nconst rendaBrutaFamiliar = toNumber(\n  pick([\"Qual a renda bruta familiar de todos os participantes?\", \"Renda bruta familiar\", \"rendaBrutaFamiliar\"], 0)\n);\n\nconst valorImovel = toNumber(\n  pick([\"Digite o valor do imóvel\", \"Qual o valor do imóvel?\", \"valorImovel\"], 0)\n);\n\n// Sistema amortizador (novo campo)\nconst sistemaAmortizadorRaw = pick(\n  [\"Sistema amortizador\", \"Sistema Amortizador\", \"Sistema amortizador *\"],\n  \"\"\n);\nconst sistemaAmortizador = normalizeAmortizador(sistemaAmortizadorRaw);\n\nconst cenario = detectCenario(tipoFinanciamento, modalidade);\n\n/** =========================\n *  NORMALIZA BANCO\n * ========================= */\nfunction normalizeBanco(b) {\n  const s = upper(b);\n  if (s.includes(\"CAIXA\")) return { code: \"CAIXA\", label: \"Caixa\" };\n  if (s.includes(\"INTER\")) return { code: \"INTER\", label: \"Banco Inter\" };\n  if (s.includes(\"BRADESCO\")) return { code: \"BRADESCO\", label: \"Bradesco\" };\n  if (s.includes(\"ITA\")) return { code: \"ITAU\", label: \"Itaú\" };\n  if (s.includes(\"SANT\")) return { code: \"SANTANDER\", label: \"Santander\" };\n  return { code: \"OUTRO\", label: normStr(b) || \"Outro\" };\n}\n\nconst banco = normalizeBanco(bancoPretendidoRaw);\n\n/** =========================\n *  SELEÇÃO DE TAXA\n * ========================= */\nlet taxaAno = 0;\nlet taxaAnoMin = null;\nlet taxaAnoMax = null;\n\nlet produtoSelecionado = \"\";\nlet criterioSelecionado = \"\";\nlet ltvMaxRef = 0.8; // default\nlet valorMaxImovelRegra = null;\n\nconst observacoesTaxa = [];\n\nconst modalidadeNovoUsado = detectModalidadeNovoOuUsado(modalidade);\n\n// MCMV só faz sentido em RESIDENCIAL e modalidade novo/usado\nconst podeTentarMCMV =\n  banco.code === \"CAIXA\" &&\n  cenario === \"RESIDENCIAL\" &&\n  (modalidadeNovoUsado === \"novo\" || modalidadeNovoUsado === \"usado\") &&\n  rendaBrutaFamiliar > 0 &&\n  rendaBrutaFamiliar <= 12000;\n\nfunction faixaMCMVPorRenda(renda) {\n  const { F1, F2, F3, F4 } = CONFIG.MCMV;\n  if (renda <= F1.rendaMax) return { faixa: \"Faixa 1\", key: \"F1\", cfg: F1 };\n  if (renda <= F2.rendaMax) return { faixa: \"Faixa 2\", key: \"F2\", cfg: F2 };\n  if (renda <= F3.rendaMax) return { faixa: \"Faixa 3\", key: \"F3\", cfg: F3 };\n  if (renda <= F4.rendaMax) return { faixa: \"Faixa 4\", key: \"F4\", cfg: F4 };\n  return null;\n}\n\nif (podeTentarMCMV) {\n  const faixaInfo = faixaMCMVPorRenda(rendaBrutaFamiliar);\n\n  if (faixaInfo) {\n    const regraImovel = faixaInfo.cfg[modalidadeNovoUsado];\n    valorMaxImovelRegra = regraImovel?.valorMaxImovel ?? null;\n    ltvMaxRef = regraImovel?.ltv ?? 0.8;\n\n    // Elegibilidade por valor do imóvel\n    const elegivelValorImovel =\n      valorImovel > 0 && valorMaxImovelRegra !== null ? (valorImovel <= valorMaxImovelRegra) : true;\n\n    if (elegivelValorImovel) {\n      // Taxa\n      if (faixaInfo.cfg.taxa !== undefined) {\n        taxaAno = faixaInfo.cfg.taxa;\n      } else {\n        // Faixa com taxaMin/taxaMax\n        const isNorteNordeste = CONFIG.UFS_NORTE_NORDESTE.has(uf);\n        taxaAnoMin = faixaInfo.cfg.taxaMin;\n        taxaAnoMax = faixaInfo.cfg.taxaMax;\n        taxaAno = isNorteNordeste ? taxaAnoMin : taxaAnoMax;\n\n        observacoesTaxa.push(\n          `Faixa possui 2 taxas: ${((taxaAnoMin*100).toFixed(2)).replace(\".\", \",\")}% e ${((taxaAnoMax*100).toFixed(2)).replace(\".\", \",\")}% a.a. (seleção por UF).`\n        );\n      }\n\n      produtoSelecionado = `Caixa MCMV ${faixaInfo.faixa}`;\n      criterioSelecionado = `Caixa MCMV ${faixaInfo.faixa}`;\n      observacoesTaxa.push(\n        `Regra MCMV (${faixaInfo.faixa}) — ${modalidadeNovoUsado.toUpperCase()}: LTV máx ${Math.round(ltvMaxRef*100)}% e valor do imóvel até R$ ${valorMaxImovelRegra?.toFixed(2) ?? \"—\"}.`\n      );\n    } else {\n      // Não elegível por valor do imóvel -> SBPE\n      taxaAno = CONFIG.TAXAS_FIXAS_AA.CAIXA_SBPE;\n      produtoSelecionado = \"Caixa SBPE\";\n      criterioSelecionado = \"Caixa SBPE\";\n      observacoesTaxa.push(\n        `Não elegível ao MCMV: valor do imóvel (R$ ${valorImovel.toFixed(2)}) acima do limite da ${faixaInfo.faixa} para ${modalidadeNovoUsado.toUpperCase()} (até R$ ${valorMaxImovelRegra.toFixed(2)}).`\n      );\n    }\n  } else {\n    // renda não encaixou (deveria não acontecer pois <= 12000)\n    taxaAno = CONFIG.TAXAS_FIXAS_AA.CAIXA_SBPE;\n    produtoSelecionado = \"Caixa SBPE\";\n    criterioSelecionado = \"Caixa SBPE\";\n    observacoesTaxa.push(\"Renda não enquadrou em faixa MCMV. Aplicada taxa SBPE.\");\n  }\n} else {\n  // Bancos fora MCMV (ou Caixa fora condições)\n  if (banco.code === \"CAIXA\") {\n    taxaAno = CONFIG.TAXAS_FIXAS_AA.CAIXA_SBPE;\n    produtoSelecionado = \"Caixa SBPE\";\n    criterioSelecionado = \"Caixa SBPE\";\n  } else if (banco.code === \"INTER\") {\n    taxaAno = CONFIG.TAXAS_FIXAS_AA.INTER;\n    produtoSelecionado = \"Inter Base\";\n    criterioSelecionado = \"Inter Base\";\n  } else if (banco.code === \"BRADESCO\") {\n    taxaAno = CONFIG.TAXAS_FIXAS_AA.BRADESCO;\n    produtoSelecionado = \"Bradesco Prime\";\n    criterioSelecionado = \"Bradesco Prime\";\n  } else if (banco.code === \"ITAU\") {\n    taxaAno = CONFIG.TAXAS_FIXAS_AA.ITAU;\n    produtoSelecionado = \"Itaú\";\n    criterioSelecionado = \"Itaú\";\n  } else if (banco.code === \"SANTANDER\") {\n    taxaAno = CONFIG.TAXAS_FIXAS_AA.SANTANDER;\n    produtoSelecionado = \"Santander\";\n    criterioSelecionado = \"Santander\";\n  } else {\n    // fallback\n    taxaAno = 0.11;\n    produtoSelecionado = \"Taxa padrão\";\n    criterioSelecionado = \"Taxa padrão\";\n    observacoesTaxa.push(\"Banco não identificado. Aplicada taxa padrão 11% a.a.\");\n  }\n}\n\n/** =========================\n *  SAÍDA PARA PRÓXIMO NODE\n * ========================= */\nconst taxaMes = taxaAno > 0 ? (taxaAno / 12) : 0;\n\nreturn [\n  {\n    ...item,\n\n    // Banco\n    bancoPretendido: banco.label,\n    bancoCodigo: banco.code,\n\n    // Sistema amortizador\n    sistemaAmortizador,\n\n    // Cenário\n    tipoFinanciamento,\n    modalidade,\n    cenario,\n\n    // Taxas escolhidas\n    motorTaxaOk: taxaAno > 0,\n    taxaAno,\n    taxaMes,\n    taxaAnoMin,\n    taxaAnoMax,\n\n    // Labels “bonitos”\n    fonteTaxaLabel: banco.label,\n    produtoSelecionado,\n    criterioSelecionado,\n\n    // Regras MCMV/LTV\n    ltvMaxRef,\n    valorMaxImovelRegra,\n\n    observacoesTaxa,\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        160
+      ],
+      "id": "3994b215-2808-4121-8e62-415f1ddcd880",
+      "name": "Motor de taxas"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendText",
+        "textMessage": "=✅ Novo lead direcionado com sucesso\n\nNome: {{$node[\"Validação de dados\"].json.nomeCompletoNormalizado}}\nCelular: {{$node[\"Validação de dados\"].json.celularLimpo}}\nE-mail: {{$node[\"Validação de dados\"].json.emailValidado}}",
+        "departmentId": "REPLACE_WITH_WTS_DEPARTMENT_ID",
+        "userIdByDepartment": "REPLACE_WITH_WTS_USER_ID",
+        "channelId": "REPLACE_WITH_WTS_CHANNEL_ID",
+        "numberToSend": "REPLACE_WITH_ADMIN_PHONE"
+      },
+      "type": "n8n-nodes-wts.wtsChat",
+      "typeVersion": 1,
+      "position": [
+        2304,
+        160
+      ],
+      "id": "b718055b-39ee-4a16-a98d-0a34d7747dc1",
+      "name": "Aviso ao responsável pelos leads",
+      "credentials": {
+        "wtsApi": {
+          "id": "REPLACE_WITH_WTS_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_WTS_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "panel",
+        "operation": "getPanelById",
+        "panelId": "REPLACE_WITH_WTS_PANEL_ID"
+      },
+      "type": "n8n-nodes-wts.wtsChat",
+      "typeVersion": 1,
+      "position": [
+        2592,
+        160
+      ],
+      "id": "eb3a3261-e072-405b-b53e-54a4a8fd033d",
+      "name": "Get panel by id ",
+      "credentials": {
+        "wtsApi": {
+          "id": "REPLACE_WITH_WTS_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_WTS_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "panel",
+        "operation": "createCard",
+        "panels": "REPLACE_WITH_WTS_PANEL_ID",
+        "stepPanels": "REPLACE_WITH_WTS_STEP_ID",
+        "tagsPanel": [
+          "REPLACE_WITH_WTS_PANEL_TAG_ID"
+        ],
+        "title": "={{ $('Output dos dados em .xlsx').item.json.B }}",
+        "description": "={{ $('Separação de dados2').item.json.textoSimulacao }}",
+        "monetaryAmount": 0,
+        "position": 0,
+        "customFieldsPanel": {
+          "customFields": [
+            {
+              "key": "valor-de-entrada",
+              "value": "={{$node[\"Simulação em JS\"].json.valorEntrada || 0}}"
+            },
+            {
+              "key": "cpf-comprador-58",
+              "value": "={{$node[\"Validação de dados\"].json.cpfLimpo}}"
+            },
+            {
+              "key": "categoria-do-imovel--52",
+              "value": "={{\n  ($node[\"Simulação em JS\"].json.modalidade || \"\")\n    .replace(\"Aquisição de \", \"\")\n    .replace(\"Imóvel \", \"\")\n    .trim()\n}}"
+            },
+            {
+              "key": "email--89",
+              "value": "={{$node[\"Validação de dados\"].json.emailValidado}}"
+            },
+            {
+              "key": "data-de-nascimento--4",
+              "value": "="
+            },
+            {
+              "key": "renda-total",
+              "value": "={{$node[\"Simulação em JS\"].json.rendaBrutaFamiliar}}"
+            },
+            {
+              "key": "vai-usar-fgts-",
+              "value": "={{$node[\"Simulação em JS\"].json.vaiUsarFGTS === true ? \"Sim\" : \"Não\"}}"
+            },
+            {
+              "key": "valor-do-fgts--59",
+              "value": "={{$node[\"Simulação em JS\"].json.vaiUsarFGTS === true ? ($node[\"Simulação em JS\"].json.saldoFGTS || 0) : 0}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-wts.wtsChat",
+      "typeVersion": 1,
+      "position": [
+        2912,
+        160
+      ],
+      "id": "2bb92676-b70c-448e-ab03-a64137db75cf",
+      "name": "Create card",
+      "credentials": {
+        "wtsApi": {
+          "id": "REPLACE_WITH_WTS_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_WTS_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendText",
+        "textMessage": "=❌ Lead com erro na simulação\n\nNome: {{ $('Relatório em caso de falhas').item.json.B }}\nE-mail: {{ $('Relatório em caso de falhas').item.json.D }}",
+        "departmentId": "REPLACE_WITH_WTS_DEPARTMENT_ID",
+        "userIdByDepartment": "REPLACE_WITH_WTS_USER_ID",
+        "channelId": "REPLACE_WITH_WTS_CHANNEL_ID",
+        "numberToSend": "REPLACE_WITH_ADMIN_PHONE"
+      },
+      "type": "n8n-nodes-wts.wtsChat",
+      "typeVersion": 1,
+      "position": [
+        352,
+        432
+      ],
+      "id": "9c860003-2506-4c77-9e51-29ccb86b1f97",
+      "name": "Erro informado ao ADM",
+      "credentials": {
+        "wtsApi": {
+          "id": "REPLACE_WITH_WTS_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_WTS_CREDENTIAL_NAME"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Separação de dados1": {
+      "main": [
+        [
+          {
+            "node": "Buscar contato (existencia)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar contato (existencia)": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Atualizar contato",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Criar contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar contato": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar contato": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Planilha criada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simulação em JS": {
+      "main": [
+        [
+          {
+            "node": "Separação de dados1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planilha criada": {
+      "main": [
+        [
+          {
+            "node": "Output dos dados em .xlsx",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output dos dados em .xlsx": {
+      "main": [
+        [
+          {
+            "node": "Separação de dados2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separação de dados2": {
+      "main": [
+        [
+          {
+            "node": "Mandar a mensagem pro cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mandar a mensagem pro cliente": {
+      "main": [
+        [
+          {
+            "node": "Direcionamento a especialistas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validação de dados": {
+      "main": [
+        [
+          {
+            "node": "Dados válidos ou inválidos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados válidos ou inválidos": {
+      "main": [
+        [
+          {
+            "node": "Motor de taxas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Relatório em caso de falhas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formulário": {
+      "main": [
+        [
+          {
+            "node": "Validação de dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Direcionamento a especialistas": {
+      "main": [
+        [
+          {
+            "node": "Aviso ao responsável pelos leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Relatório em caso de falhas": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Envio de e-mail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing1": {
+      "main": [
+        []
+      ]
+    },
+    "Motor de taxas": {
+      "main": [
+        [
+          {
+            "node": "Simulação em JS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aviso ao responsável pelos leads": {
+      "main": [
+        [
+          {
+            "node": "Get panel by id ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get panel by id ": {
+      "main": [
+        [
+          {
+            "node": "Create card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create card": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envio de e-mail": {
+      "main": [
+        [
+          {
+            "node": "Erro informado ao ADM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timezone": "America/Sao_Paulo",
+    "saveDataErrorExecution": "all",
+    "timeSavedPerExecution": 1,
+    "saveDataSuccessExecution": "all",
+    "saveExecutionProgress": true
+  },
+  "versionId": "REDACTED_WORKFLOW_VERSION_ID",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "REDACTED_INSTANCE_ID"
+  },
+  "id": "REDACTED_WORKFLOW_ID",
+  "tags": []
+}
