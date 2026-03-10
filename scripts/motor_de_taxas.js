@@ -4,7 +4,7 @@ const item = $json;
  * ==========================================================
  * MOTOR DE TAXAS — Atualizado
  * - Considera banco escolhido (Caixa/Inter/Bradesco/Itaú/Santander)
- * - Caixa: aplica MCMV (Faixas 1–4) conforme sua imagem
+ * - Caixa: aplica MCMV (Faixas 1–4) 
  * - Se não for elegível MCMV (renda/limite imóvel/modalidade), cai para SBPE (Caixa)
  * - Passa adiante sistema amortizador (SAC/PRICE)
  * ==========================================================
